@@ -1,0 +1,5 @@
+dist/
+node_modules/
+.satsimjs/
+.DS_Store
+*.log
