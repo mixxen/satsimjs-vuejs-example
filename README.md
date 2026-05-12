@@ -109,7 +109,7 @@ When changing scene data, start with `sceneData.js`:
 - `DEFAULT_GIMBAL_SLEW_RATES` applies slew limits to az/el gimbals unless a
   site provides its own rates.
 - `loadSatellites` maps TLE triples into Lagrange-interpolated SGP4 satellites
-  and stores the source TLE on each satellite for Vue display.
+  and stores stable `displayType` and source TLE metadata for Vue display.
 - `randomTrack` seeds each observatory with a visible low-orbit target.
 - `startRandomTracking` rotates one observatory to a new visible target every
   configured simulation-time interval.

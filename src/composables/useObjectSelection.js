@@ -326,6 +326,19 @@ function getPhysicalObject(object) {
 }
 
 function getObjectType(object) {
+  if (object?.displayType) {
+    return object.displayType;
+  }
+  if (object?.tle || isOrbitingObject(object)) {
+    return "Satellite";
+  }
+  if (object?.site && object?.gimbal) {
+    return "Ground Observatory";
+  }
+  if (Number.isFinite(object?.latitude) && Number.isFinite(object?.longitude)) {
+    return "Ground Site";
+  }
+
   const constructorName = object?.constructor?.name;
   return constructorName ? constructorName.replace(/([a-z])([A-Z])/g, "$1 $2") : "Object";
 }

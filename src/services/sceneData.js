@@ -85,6 +85,9 @@ async function loadSensors(universe, viewer, url, options = {}) {
       site.field_of_regard,
       getSiteGimbalSlewRates(site, options.gimbalSlewRates)
     );
+    observatory.displayType = "Ground Observatory";
+    observatory.site.displayType = "Ground Site";
+    observatory.gimbal.displayType = "Az/El Gimbal";
     generateGroundObservatoryVisualizer(universe, viewer, observatory);
     observatory.gimbal.trackMode = "rate";
     return observatory;
@@ -121,6 +124,7 @@ async function loadSatellites(universe, viewer, url, options = {}) {
     }
 
     const satellite = universe.addSGP4Satellite(name, line1, line2, "nadir", true);
+    satellite.displayType = "Satellite";
     satellite.tle = { name, line1, line2 };
     satellite.model = {
       mode: "lambertianSphere",
