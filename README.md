@@ -52,7 +52,9 @@ visualizers, initializes random sensor tracks, and returns:
 `options.maxSatellites` defaults to `DEFAULT_SATELLITE_LIMIT`, currently all
 bundled satellites. `options.randomTrackIntervalSeconds` defaults to `15`,
 matching the original JavaScript demo. Call `stopRandomTracking()` before
-destroying the viewer.
+destroying the viewer. `options.gimbalSlewRates` defaults to az/el slew limits
+of `20 deg/s` with `60 deg/s^2` acceleration; site JSON can override this with
+`gimbal_slew_rates`, `gimbalSlewRates`, `slew_rates`, or `slewRates`.
 
 ### `useObjectSelection({ viewerRef, universeRef, activeMode, layerState })`
 
@@ -104,6 +106,8 @@ When changing object details, start with `useObjectSelection.js`:
 When changing scene data, start with `sceneData.js`:
 
 - `loadSensors` maps demo sensor JSON into SatSimJS observatories.
+- `DEFAULT_GIMBAL_SLEW_RATES` applies slew limits to az/el gimbals unless a
+  site provides its own rates.
 - `loadSatellites` maps TLE triples into Lagrange-interpolated SGP4 satellites
   and stores the source TLE on each satellite for Vue display.
 - `randomTrack` seeds each observatory with a visible low-orbit target.

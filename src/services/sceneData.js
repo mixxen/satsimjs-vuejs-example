@@ -7,6 +7,11 @@ import {
 import { getObservatorySensors } from "satsim/src/engine/objects/observatoryUtils.js";
 
 export const DEFAULT_SATELLITE_LIMIT = Number.POSITIVE_INFINITY;
+export const DEFAULT_GIMBAL_SLEW_RATES = Object.freeze({
+  az: Object.freeze({ maxRateDegPerSec: 20, maxAccelDegPerSec2: 60 }),
+  el: Object.freeze({ maxRateDegPerSec: 20, maxAccelDegPerSec2: 60 })
+});
+
 const RANDOM_TRACK_INTERVAL_SECONDS = 15;
 
 function publicPath(path) {
@@ -39,7 +44,9 @@ function collectSensorOptions(observatories) {
 export async function loadDemoScene(universe, viewer, options = {}) {
   const maxSatellites = options.maxSatellites ?? DEFAULT_SATELLITE_LIMIT;
   const randomTrackIntervalSeconds = options.randomTrackIntervalSeconds ?? RANDOM_TRACK_INTERVAL_SECONDS;
-  const observatories = await loadSensors(universe, viewer, publicPath("assets/sites.json"));
+  const observatories = await loadSensors(universe, viewer, publicPath("assets/sites.json"), {
+    gimbalSlewRates: options.gimbalSlewRates ?? DEFAULT_GIMBAL_SLEW_RATES
+  });
   const satellites = await loadSatellites(universe, viewer, publicPath("assets/celestrak_sat_elem.txt"), {
     maxSatellites
   });
@@ -57,7 +64,7 @@ export async function loadDemoScene(universe, viewer, options = {}) {
   };
 }
 
-async function loadSensors(universe, viewer, url) {
+async function loadSensors(universe, viewer, url, options = {}) {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to load sensors from ${url}: ${response.status}`);
@@ -75,7 +82,8 @@ async function loadSensors(universe, viewer, url) {
       site.width,
       site.y_fov,
       site.x_fov,
-      site.field_of_regard
+      site.field_of_regard,
+      getSiteGimbalSlewRates(site, options.gimbalSlewRates)
     );
     generateGroundObservatoryVisualizer(universe, viewer, observatory);
     observatory.gimbal.trackMode = "rate";
@@ -83,6 +91,14 @@ async function loadSensors(universe, viewer, url) {
   });
 
   return observatories;
+}
+
+function getSiteGimbalSlewRates(site, fallback) {
+  return site.gimbal_slew_rates ??
+    site.gimbalSlewRates ??
+    site.slew_rates ??
+    site.slewRates ??
+    fallback;
 }
 
 async function loadSatellites(universe, viewer, url, options = {}) {
