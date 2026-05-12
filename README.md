@@ -44,12 +44,15 @@ visualizers, initializes random sensor tracks, and returns:
 {
   observatoryCount,
   satelliteCount,
-  sensors
+  sensors,
+  stopRandomTracking
 }
 ```
 
 `options.maxSatellites` defaults to `DEFAULT_SATELLITE_LIMIT`, currently all
-bundled satellites.
+bundled satellites. `options.randomTrackIntervalSeconds` defaults to `15`,
+matching the original JavaScript demo. Call `stopRandomTracking()` before
+destroying the viewer.
 
 ### `useObjectSelection({ viewerRef, universeRef, activeMode, layerState })`
 
@@ -104,6 +107,8 @@ When changing scene data, start with `sceneData.js`:
 - `loadSatellites` maps TLE triples into Lagrange-interpolated SGP4 satellites
   and stores the source TLE on each satellite for Vue display.
 - `randomTrack` seeds each observatory with a visible low-orbit target.
+- `startRandomTracking` rotates one observatory to a new visible target every
+  configured simulation-time interval.
 
 ## GitHub Pages
 

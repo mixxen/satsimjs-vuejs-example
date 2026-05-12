@@ -16,6 +16,7 @@ const container = ref(null);
 
 let viewer;
 let resizeObserver;
+let stopRandomTracking;
 
 onMounted(async () => {
   try {
@@ -57,6 +58,7 @@ onMounted(async () => {
     const scene = await loadDemoScene(universe, viewer, {
       maxSatellites: DEFAULT_SATELLITE_LIMIT
     });
+    stopRandomTracking = scene.stopRandomTracking;
 
     emit("ready", {
       viewer,
@@ -69,6 +71,7 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  stopRandomTracking?.();
   resizeObserver?.disconnect();
   if (viewer && !viewer.isDestroyed()) {
     viewer.destroy();

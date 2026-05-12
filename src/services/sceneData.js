@@ -7,6 +7,7 @@ import {
 import { getObservatorySensors } from "satsim/src/engine/objects/observatoryUtils.js";
 
 export const DEFAULT_SATELLITE_LIMIT = Number.POSITIVE_INFINITY;
+const RANDOM_TRACK_INTERVAL_SECONDS = 15;
 
 function publicPath(path) {
   const base = import.meta.env.BASE_URL || "/";
@@ -37,6 +38,7 @@ function collectSensorOptions(observatories) {
  */
 export async function loadDemoScene(universe, viewer, options = {}) {
   const maxSatellites = options.maxSatellites ?? DEFAULT_SATELLITE_LIMIT;
+  const randomTrackIntervalSeconds = options.randomTrackIntervalSeconds ?? RANDOM_TRACK_INTERVAL_SECONDS;
   const observatories = await loadSensors(universe, viewer, publicPath("assets/sites.json"));
   const satellites = await loadSatellites(universe, viewer, publicPath("assets/celestrak_sat_elem.txt"), {
     maxSatellites
@@ -50,7 +52,8 @@ export async function loadDemoScene(universe, viewer, options = {}) {
   return {
     observatoryCount: observatories.length,
     satelliteCount: satellites.length,
-    sensors: collectSensorOptions(observatories)
+    sensors: collectSensorOptions(observatories),
+    stopRandomTracking: startRandomTracking(universe, viewer, observatories, randomTrackIntervalSeconds)
   };
 }
 
@@ -140,6 +143,27 @@ function randomTrack(universe, viewer, observatory, time, maxIterations = 500) {
     }
     iterations -= 1;
   }
+}
+
+function startRandomTracking(universe, viewer, observatories, intervalSeconds) {
+  if (!observatories.length || intervalSeconds <= 0) {
+    return () => {};
+  }
+
+  const lastTrackTime = JulianDate.clone(viewer.clock.currentTime, new JulianDate());
+  return viewer.scene.preUpdate.addEventListener((_scene, time) => {
+    if (Math.abs(JulianDate.secondsDifference(lastTrackTime, time)) <= intervalSeconds) {
+      return;
+    }
+
+    randomTrack(
+      universe,
+      viewer,
+      observatories[Math.floor(Math.random() * observatories.length)],
+      time
+    );
+    JulianDate.clone(time, lastTrackTime);
+  });
 }
 
 function showTrackedPath(viewer, gimbal, show) {
