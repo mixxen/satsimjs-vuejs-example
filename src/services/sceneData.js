@@ -14,21 +14,6 @@ function publicPath(path) {
   return `${normalizedBase}${path.replace(/^\/+/, "")}`;
 }
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function modelDescription(model) {
-  return Object.entries(model)
-    .map(([key, value]) => `&bull; ${escapeHtml(key)}: ${escapeHtml(value)}<br>`)
-    .join("");
-}
-
 function collectSensorOptions(observatories) {
   const sensors = [];
   observatories.forEach((observatory, observatoryIndex) => {
@@ -44,6 +29,12 @@ function collectSensorOptions(observatories) {
   return sensors;
 }
 
+/**
+ * Public scene bootstrap for the prototype.
+ *
+ * Loads bundled demo assets, attaches SatSimJS visualizers, updates the
+ * universe once, and returns the Vue-facing scene summary.
+ */
 export async function loadDemoScene(universe, viewer, options = {}) {
   const maxSatellites = options.maxSatellites ?? DEFAULT_SATELLITE_LIMIT;
   const observatories = await loadSensors(universe, viewer, publicPath("assets/sites.json"));
@@ -118,8 +109,7 @@ async function loadSatellites(universe, viewer, url, options = {}) {
       albedo: 0.25
     };
 
-    const description = `TLE:<br>${escapeHtml(line1)}<br>${escapeHtml(line2)}<br><br>Model:<br>${modelDescription(satellite.model)}`;
-    generateSatelliteVisualizer(universe, viewer, satellite, description, false, false, Color.fromRandom({ alpha: 1.0 }));
+    generateSatelliteVisualizer(universe, viewer, satellite, "", false, false, Color.fromRandom({ alpha: 1.0 }));
     satellites.push(satellite);
   }
 
