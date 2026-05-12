@@ -111,6 +111,7 @@ async function loadSatellites(universe, viewer, url, options = {}) {
     }
 
     const satellite = universe.addSGP4Satellite(name, line1, line2, "nadir", true);
+    satellite.tle = { name, line1, line2 };
     satellite.model = {
       mode: "lambertianSphere",
       diameter: 1.0,
