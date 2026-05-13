@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -6,10 +7,12 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, process.env.SATSIMJS_ROOT ?? "../..");
+const require = createRequire(import.meta.url);
 const cesiumBuild = "node_modules/cesium/Build/Cesium";
 const base = process.env.VITE_BASE ?? "/";
 const normalizedBase = base.endsWith("/") ? base : `${base}/`;
+const satsimRoot = path.dirname(require.resolve("satsim/package.json"));
+const satsimNodeModules = path.join(satsimRoot, "node_modules");
 
 export default defineConfig({
   root: __dirname,
@@ -30,15 +33,13 @@ export default defineConfig({
   },
   resolve: {
     alias: [
-      { find: /^satsim$/, replacement: path.resolve(repoRoot, "src/index.js") },
-      { find: /^satsim\/src\/(.*)$/, replacement: path.resolve(repoRoot, "src/$1") },
       { find: /^cesium$/, replacement: path.resolve(__dirname, "node_modules/cesium") }
     ],
     dedupe: ["cesium"]
   },
   server: {
     fs: {
-      allow: [__dirname, repoRoot]
+      allow: [__dirname, satsimRoot, satsimNodeModules]
     }
   },
   build: {

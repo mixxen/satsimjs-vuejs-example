@@ -1,8 +1,7 @@
 # SatSimJS Vue Prototype
 
-Standalone Vue 3 + Vite prototype for SatSimJS. It imports the local SatSimJS
-source from this repository and keeps all Vue controls outside the Cesium
-canvas.
+Standalone Vue 3 + Vite prototype for SatSimJS. It depends on the published
+`satsim` package and keeps all Vue controls outside the Cesium canvas.
 
 ```sh
 npm install
@@ -10,6 +9,26 @@ npm run dev -- --host 0.0.0.0
 ```
 
 The demo loads all bundled sites and TLE satellites from `public/assets`.
+
+## Local SatSimJS Development
+
+Use `npm link` when you want this app to run against a local SatSimJS checkout
+instead of the registry package:
+
+```sh
+# from the SatSimJS repo root
+npm install
+npm link
+
+# from this Vue example
+npm install
+npm link satsim
+npm run dev -- --host 0.0.0.0
+```
+
+The app imports package paths such as `satsim/src/engine/Universe.js`. Vite
+resolves those through `node_modules/satsim`; `npm link satsim` simply points
+that dependency at your local checkout.
 
 ## Developer Map
 
@@ -117,11 +136,13 @@ When changing scene data, start with `sceneData.js`:
 ## GitHub Pages
 
 This app can be deployed by `.github/workflows/deploy-pages.yml` after this
-folder is pushed as its own GitHub repository. The workflow checks out the
-SatSimJS source beside the Vue app, then builds with:
+folder is pushed as its own GitHub repository. The workflow checks out
+`ssc-ai/satsimjs` at `master`, links that checkout over the registry `satsim`
+dependency, then builds with:
 
 ```sh
-SATSIMJS_ROOT=.satsimjs VITE_BASE=/${GITHUB_REPOSITORY#*/}/ npm run build
+VITE_BASE=/${GITHUB_REPOSITORY#*/}/ npm run build
 ```
 
-That keeps Vite and Cesium asset URLs valid for a repository Pages URL.
+That keeps SatSimJS current with upstream `master` while Vite and Cesium asset
+URLs stay valid for a repository Pages URL.

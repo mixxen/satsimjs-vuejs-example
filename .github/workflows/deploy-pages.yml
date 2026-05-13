@@ -23,10 +23,11 @@ jobs:
       - name: Check out Vue example
         uses: actions/checkout@v4
 
-      - name: Check out SatSimJS source
+      - name: Check out SatSimJS master
         uses: actions/checkout@v4
         with:
           repository: ssc-ai/satsimjs
+          ref: master
           path: .satsimjs
 
       - name: Set up Node.js
@@ -34,18 +35,26 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            .satsimjs/package-lock.json
 
       - name: Install Vue example dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Install SatSimJS source dependencies
+      - name: Install SatSimJS master dependencies
         working-directory: .satsimjs
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
+
+      - name: Link SatSimJS master
+        working-directory: .satsimjs
+        run: npm link --no-save
+
+      - name: Use linked SatSimJS master
+        run: npm link --no-save satsim
 
       - name: Build Vue example
         env:
-          SATSIMJS_ROOT: .satsimjs
           VITE_BASE: /${{ github.event.repository.name }}/
         run: npm run build
 
